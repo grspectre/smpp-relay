@@ -1,0 +1,12 @@
+smpp:
+  host: "" # leave "" for 0.0.0.0
+  port: 2775
+  user: "smppclient"
+  password: "password"
+
+rest:
+  url: "URL"
+  token: ""
+
+system:
+  log: "smpp-gateway.log"
