@@ -25,7 +25,7 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context) {
 		Destination: sm.DestinationAddr,
 		Priority:    sm.PriorityFlag,
 		RemoteAddr:  ctx.RemoteAddr(),
-		Message:     sm.ShortMessage,
+		Message:     UCS2Decode(sm.ShortMessage),
 	}
 
 	jsonData, err := json.Marshal(payload)

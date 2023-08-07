@@ -70,7 +70,7 @@ func main() {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
 
-				sendSMS(sm, ctx)
+				go sendSMS(sm, ctx)
 
 				resp := sm.Response(fmt.Sprintf("msgID_%d", msgID))
 				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
