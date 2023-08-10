@@ -17,9 +17,10 @@ type Payload struct {
 	RemoteAddr  string `json:"remoteAddr"`
 	Message     string `json:"message"`
 	User        string `json:"user"`
+	Password    string `json:"password"`
 }
 
-func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context) {
+func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 	url := cfg.REST.Url
 	payload := Payload{
 		Source:      sm.SourceAddr,
@@ -27,7 +28,8 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context) {
 		Priority:    sm.PriorityFlag,
 		RemoteAddr:  ctx.RemoteAddr(),
 		Message:     UCS2Decode(sm.ShortMessage),
-		User:        ctx.SystemID(),
+		User:        sid,
+		Password:    pwd,
 	}
 
 	jsonData, err := json.Marshal(payload)

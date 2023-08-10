@@ -18,10 +18,18 @@ var (
 	msgID      int
 )
 
+type AppRegistry struct {
+	SessionId string
+	SystemId  string
+	Password  string
+}
+
 var cfg Config
+var appData map[string]AppRegistry
 
 func main() {
 	readConfigFile(&cfg)
+	appData = make(map[string]AppRegistry)
 
 	err := initLog()
 	if err != nil {
@@ -44,6 +52,13 @@ func main() {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
 				log.Printf("Incoming connection from %s with ID: %s", ctx.RemoteAddr(), btx.SystemID)
+
+				appData[ctx.SessionID()] = AppRegistry{
+					SessionId: ctx.SessionID(),
+					SystemId:  btx.SystemID,
+					Password:  btx.Password,
+				}
+
 				resp := btx.Response(systemID)
 				responseStatus := pdu.StatusInvPaswd
 				if btx.Password == cfg.SMPP.Password && (cfg.SMPP.User == btx.SystemID || cfg.SMPP.User == "*") {
@@ -59,6 +74,13 @@ func main() {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
 				log.Printf("Incoming connection from %s with ID: %s", ctx.RemoteAddr(), btrx.SystemID)
+
+				appData[ctx.SessionID()] = AppRegistry{
+					SessionId: ctx.SessionID(),
+					SystemId:  btrx.SystemID,
+					Password:  btrx.Password,
+				}
+
 				resp := btrx.Response(systemID)
 				responseStatus := pdu.StatusInvPaswd
 				if btrx.Password == cfg.SMPP.Password && (cfg.SMPP.User == btrx.SystemID || cfg.SMPP.User == "*") {
@@ -69,12 +91,14 @@ func main() {
 				}
 
 			case pdu.SubmitSmID:
+
+				log.Printf("%v", appData[ctx.SessionID()])
 				sm, err := ctx.SubmitSm()
 				if err != nil {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
 
-				go sendSMS(sm, ctx)
+				go sendSMS(sm, ctx, appData[ctx.SessionID()].SystemId, appData[ctx.SessionID()].Password)
 
 				resp := sm.Response(fmt.Sprintf("msgID_%d", msgID))
 				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
