@@ -16,6 +16,7 @@ type Payload struct {
 	Priority    int    `json:"priority"`
 	RemoteAddr  string `json:"remoteAddr"`
 	Message     string `json:"message"`
+	User        string `json:"user"`
 }
 
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context) {
@@ -26,6 +27,7 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context) {
 		Priority:    sm.PriorityFlag,
 		RemoteAddr:  ctx.RemoteAddr(),
 		Message:     UCS2Decode(sm.ShortMessage),
+		User:        ctx.SystemID(),
 	}
 
 	jsonData, err := json.Marshal(payload)

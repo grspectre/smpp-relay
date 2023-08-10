@@ -46,7 +46,7 @@ func main() {
 				log.Printf("Incoming connection from %s with ID: %s", ctx.RemoteAddr(), btx.SystemID)
 				resp := btx.Response(systemID)
 				responseStatus := pdu.StatusInvPaswd
-				if btx.Password == cfg.SMPP.Password && cfg.SMPP.User == btx.SystemID {
+				if btx.Password == cfg.SMPP.Password && (cfg.SMPP.User == btx.SystemID || cfg.SMPP.User == "*") {
 					responseStatus = pdu.StatusOK
 				}
 				if err := ctx.Respond(resp, responseStatus); err != nil {
@@ -60,7 +60,11 @@ func main() {
 				}
 				log.Printf("Incoming connection from %s with ID: %s", ctx.RemoteAddr(), btrx.SystemID)
 				resp := btrx.Response(systemID)
-				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
+				responseStatus := pdu.StatusInvPaswd
+				if btrx.Password == cfg.SMPP.Password && (cfg.SMPP.User == btrx.SystemID || cfg.SMPP.User == "*") {
+					responseStatus = pdu.StatusOK
+				}
+				if err := ctx.Respond(resp, responseStatus); err != nil {
 					log.Printf("Server can't respond to the Binding request: %+v", err)
 				}
 
