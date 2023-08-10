@@ -92,7 +92,6 @@ func main() {
 
 			case pdu.SubmitSmID:
 
-				log.Printf("%v", appData[ctx.SessionID()])
 				sm, err := ctx.SubmitSm()
 				if err != nil {
 					log.Printf("Invalid PDU in context error: %+v", err)
@@ -111,6 +110,7 @@ func main() {
 				if err != nil {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
+				delete(appData, ctx.SessionID())
 				resp := unb.Response()
 				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
 					log.Printf("Server can't respond to the submit_sm request: %+v", err)
