@@ -5,7 +5,7 @@ FULL_PATH="$SCRIPT_PATH/smpp-gateway"
 
 command() {
   $FULL_PATH >output.log 2>error.log &
-  echo $! >> smpp-gateway.pid
+  echo $! > smpp-gateway.pid
 }
 
 command
