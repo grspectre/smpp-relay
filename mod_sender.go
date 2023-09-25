@@ -51,7 +51,7 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 
 	// Set the content type to application/json
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Authorization", cfg.REST.Token)
+	req.Header.Set(cfg.REST.HeaderKey, cfg.REST.Token)
 
 	// Send the request
 	resp, err := client.Do(req)

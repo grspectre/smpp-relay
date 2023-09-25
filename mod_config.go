@@ -16,8 +16,9 @@ type Config struct {
 		Password string `yaml:"password"`
 	} `yaml:"smpp"`
 	REST struct {
-		Url   string `yaml:"url"`
-		Token string `yaml:"token"`
+		Url       string `yaml:"url"`
+		Token     string `yaml:"token"`
+		HeaderKey string `yaml:"header_key"`
 	} `yaml:"rest"`
 	SYSTEM struct {
 		Log string `yaml:"log"`
