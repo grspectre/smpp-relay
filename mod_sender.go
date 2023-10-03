@@ -60,6 +60,13 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 		return
 	}
 	defer func(Body io.ReadCloser) {
+		var data []byte
+		_, err2 := Body.Read(data)
+		if err2 != nil {
+			log.Fatalf("read body error: %v", err)
+			return
+		}
+		log.Printf("Body: #{data}")
 		err := Body.Close()
 		if err != nil {
 			log.Fatalf("request error: %v", err)
