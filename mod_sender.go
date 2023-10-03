@@ -66,7 +66,7 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 			log.Fatalf("read body error: %v", err)
 			return
 		}
-		log.Printf("Body: #{data}")
+		log.Printf("Body: %v", data)
 		err := Body.Close()
 		if err != nil {
 			log.Fatalf("request error: %v", err)
