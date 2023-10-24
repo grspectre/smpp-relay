@@ -21,6 +21,7 @@ type Payload struct {
 }
 
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
+	log.Printf("Data coding: %v", rune(sm.DataCoding))
 	url := cfg.REST.Url
 	payload := Payload{
 		Source:      sm.SourceAddr,
