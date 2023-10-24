@@ -21,6 +21,10 @@ type Payload struct {
 }
 
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
+	message := sm.ShortMessage
+	if sm.DataCoding == 8 {
+		message = UCS2Decode(message)
+	}
 	log.Printf("Data coding: %v", rune(sm.DataCoding))
 	url := cfg.REST.Url
 	payload := Payload{
@@ -28,7 +32,7 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 		Destination: sm.DestinationAddr,
 		Priority:    sm.PriorityFlag,
 		RemoteAddr:  ctx.RemoteAddr(),
-		Message:     UCS2Decode(sm.ShortMessage),
+		Message:     message,
 		User:        sid,
 		Password:    pwd,
 	}
