@@ -97,6 +97,7 @@ func main() {
 					log.Printf("Invalid PDU in context error: %+v", err)
 				}
 
+				log.Printf("Payload: %+v", sm.Options.MessagePayload())
 				go sendSMS(sm, ctx, appData[ctx.SessionID()].SystemId, appData[ctx.SessionID()].Password)
 
 				resp := sm.Response(fmt.Sprintf("msgID_%d", msgID))
