@@ -26,6 +26,10 @@ func (ml *MessageList) set(id string, message MessageBag) {
 	ml.messages[id] = message
 }
 
+func (ml *MessageList) del(idx string) {
+	delete(ml.messages, idx)
+}
+
 type MessageBag struct {
 	ok       bool
 	message  string
@@ -61,5 +65,9 @@ func messageOrEmpty(idx string, message string) string {
 	}
 	globalMessageList.set(idx, bag)
 
-	return bag.message
+	output := bag.message
+	if output != "" {
+		globalMessageList.del(idx)
+	}
+	return output
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/ajankovic/smpp"
 	"github.com/ajankovic/smpp/pdu"
 	"io"
@@ -23,7 +24,8 @@ type Payload struct {
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 	message := sm.ShortMessage
 
-	message = messageOrEmpty(sm.DestinationAddr, message)
+	idx := fmt.Sprintf("%s %s", ctx.SessionID(), sm.DestinationAddr)
+	message = messageOrEmpty(idx, message)
 	if message == "" {
 		return
 	}
