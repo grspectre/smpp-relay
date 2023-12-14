@@ -22,6 +22,12 @@ type Payload struct {
 
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 	message := sm.ShortMessage
+
+	message = messageOrEmpty(sm.DestinationAddr, message)
+	if message == "" {
+		return
+	}
+
 	if sm.DataCoding == 8 {
 		message = UCS2Decode(message)
 	}
