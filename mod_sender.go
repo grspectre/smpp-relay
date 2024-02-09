@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"github.com/ajankovic/smpp"
 	"github.com/ajankovic/smpp/pdu"
+	"hash/fnv"
 	"io"
 	"log"
+	"math/rand"
 	"net/http"
+	"time"
 )
 
 type Payload struct {
@@ -21,14 +24,27 @@ type Payload struct {
 	Password    string `json:"password"`
 }
 
+func hashStr() string {
+	loc, _ := time.LoadLocation("UTC")
+	now := time.Now().In(loc)
+	rnd := rand.Int63()
+	str := fmt.Sprintf("%d.%d", now.Unix(), rnd)
+	h := fnv.New32a()
+	_, err := h.Write([]byte(str))
+	if err != nil {
+		return ""
+	}
+	return fmt.Sprintf("%x", h.Sum32())
+}
+
 func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 	message := sm.ShortMessage
 
-	idx := fmt.Sprintf("%s %s", ctx.SessionID(), sm.DestinationAddr)
-	message = messageOrEmpty(idx, message)
-	if message == "" {
-		return
-	}
+	// idx := fmt.Sprintf("%s %s", ctx.SessionID(), sm.DestinationAddr)
+	//	message = messageOrEmpty(idx, message)
+	//	if message == "" {
+	//		return
+	//	}
 
 	if sm.DataCoding == 8 {
 		message = UCS2Decode(message)
@@ -67,21 +83,18 @@ func sendSMS(sm *pdu.SubmitSm, ctx *smpp.Context, sid string, pwd string) {
 
 	// Send the request
 	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Printf("Error sending request: %v", err)
 		return
 	}
-	defer func(Body io.ReadCloser) {
-		var data []byte
-		_, err2 := Body.Read(data)
-		if err2 != nil {
-			log.Fatalf("read body error: %v", err)
-			return
-		}
-		log.Printf("Body: %v", data)
-		err := Body.Close()
-		if err != nil {
-			log.Fatalf("request error: %v", err)
-		}
-	}(resp.Body)
+
+	var msgId = fmt.Sprintf("%s_%d", hashStr(), resp.StatusCode)
+	resBody, err := io.ReadAll(resp.Body)
+	log.Printf("%v\n", string(resBody))
+
+	respSm := sm.Response(msgId)
+	if err := ctx.Respond(respSm, pdu.StatusOK); err != nil {
+		log.Printf("Server can't respond to the submit_sm request: %+v", err)
+	}
 }

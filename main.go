@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -15,7 +14,6 @@ import (
 var (
 	serverAddr string
 	systemID   string
-	msgID      int
 )
 
 type AppRegistry struct {
@@ -99,11 +97,16 @@ func main() {
 
 				go sendSMS(sm, ctx, appData[ctx.SessionID()].SystemId, appData[ctx.SessionID()].Password)
 
-				resp := sm.Response(fmt.Sprintf("msgID_%d", msgID))
-				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
-					log.Printf("Server can't respond to the submit_sm request: %+v", err)
+			case pdu.EnquireLinkID:
+				el, err := ctx.EnquireLink()
+				if err != nil {
+					log.Printf("Invalid PDU in context error: %+v", err)
 				}
-				msgID++
+
+				resp := el.Response()
+				if err := ctx.Respond(resp, pdu.StatusOK); err != nil {
+					log.Printf("Server can't respond to the enquire_link request: %+v", err)
+				}
 
 			case pdu.UnbindID:
 				unb, err := ctx.Unbind()
